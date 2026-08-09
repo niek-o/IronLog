@@ -15,7 +15,7 @@ import { NavbarComponent } from './shared/components/navbar.component';
       <router-outlet></router-outlet>
     </main>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     main {
       min-height: 100vh;

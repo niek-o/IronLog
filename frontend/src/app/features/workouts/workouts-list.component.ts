@@ -44,7 +44,7 @@ import { WorkoutSessionResponse } from '../../core/models/models';
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .page { max-width: 900px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
     .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }

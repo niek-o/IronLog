@@ -50,7 +50,7 @@ import { AuthService } from '../../../core/services/auth.service';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .auth-wrap {
       min-height: 100vh;

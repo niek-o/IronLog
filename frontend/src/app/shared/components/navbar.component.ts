@@ -40,7 +40,7 @@ import { AuthService } from '../../core/services/auth.service';
       </button>
     </nav>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .shell {
       display: flex;

@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, inject, signal, viewChild, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
 import { ExerciseService } from '../../core/services/exercise.service';
@@ -46,7 +46,7 @@ Chart.register(...registerables);
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
     .page-head { margin-bottom: 1.5rem; }
@@ -55,83 +55,83 @@ Chart.register(...registerables);
     .picker-card .field { margin-bottom: 0; }
   `],
 })
-export class ProgressComponent implements OnInit, AfterViewChecked {
+export class ProgressComponent implements OnInit, OnDestroy {
   private exerciseService = inject(ExerciseService);
   private statsService = inject(StatsService);
 
-  @ViewChild('progressChart') chartRef?: ElementRef<HTMLCanvasElement>;
+  progressChart = viewChild<ElementRef<HTMLCanvasElement>>('progressChart');
   private chart?: Chart;
-  private needsRender = false;
 
   exercises = signal<ExerciseResponse[]>([]);
   progress = signal<ExerciseProgressResponse | null>(null);
   loading = signal(false);
   selectedExerciseId = '';
 
+  constructor() {
+    effect(() => {
+      const canvasRef = this.progressChart();
+      const data = this.progress();
+
+      this.chart?.destroy();
+      this.chart = undefined;
+
+      if (!canvasRef || !data || !data.points.length) return;
+
+      const ctx = canvasRef.nativeElement.getContext('2d');
+      if (!ctx) return;
+
+      this.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.points.map((p) => new Date(p.date).toLocaleDateString()),
+          datasets: [
+            {
+              label: 'Estimated 1RM (kg)',
+              data: data.points.map((p) => p.estimatedOneRepMax),
+              borderColor: '#e8ff57',
+              backgroundColor: 'rgba(232,255,87,0.12)',
+              tension: 0.3,
+              fill: true,
+            },
+            {
+              label: 'Max weight (kg)',
+              data: data.points.map((p) => p.maxWeightKg),
+              borderColor: '#5db4ff',
+              backgroundColor: 'transparent',
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#9ba1ac' } } },
+          scales: {
+            x: { ticks: { color: '#9ba1ac' }, grid: { display: false } },
+            y: { ticks: { color: '#9ba1ac' }, grid: { color: '#2e333d' } },
+          },
+        },
+      });
+    });
+  }
+
   ngOnInit(): void {
     this.exerciseService.list().subscribe((data) => this.exercises.set(data));
   }
 
-  ngAfterViewChecked(): void {
-    if (this.needsRender && this.chartRef) {
-      this.needsRender = false;
-      this.renderChart();
-    }
+  ngOnDestroy(): void {
+    this.chart?.destroy();
   }
 
   onSelect(exerciseId: string): void {
     if (!exerciseId) return;
     this.loading.set(true);
-    this.chart?.destroy();
-    this.chart = undefined;
 
     this.statsService.progressFor(exerciseId).subscribe({
       next: (data) => {
         this.progress.set(data);
         this.loading.set(false);
-        this.needsRender = data.points.length > 0;
       },
       error: () => this.loading.set(false),
-    });
-  }
-
-  private renderChart(): void {
-    const data = this.progress();
-    if (!data || !this.chartRef) return;
-
-    const ctx = this.chartRef.nativeElement.getContext('2d');
-    if (!ctx) return;
-
-    this.chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: data.points.map((p) => new Date(p.date).toLocaleDateString()),
-        datasets: [
-          {
-            label: 'Estimated 1RM (kg)',
-            data: data.points.map((p) => p.estimatedOneRepMax),
-            borderColor: '#e8ff57',
-            backgroundColor: 'rgba(232,255,87,0.12)',
-            tension: 0.3,
-            fill: true,
-          },
-          {
-            label: 'Max weight (kg)',
-            data: data.points.map((p) => p.maxWeightKg),
-            borderColor: '#5db4ff',
-            backgroundColor: 'transparent',
-            tension: 0.3,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#9ba1ac' } } },
-        scales: {
-          x: { ticks: { color: '#9ba1ac' }, grid: { display: false } },
-          y: { ticks: { color: '#9ba1ac' }, grid: { color: '#2e333d' } },
-        },
-      },
     });
   }
 }

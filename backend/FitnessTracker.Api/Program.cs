@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using FitnessTracker.Api.Data;
 using FitnessTracker.Api.Endpoints;
 using FitnessTracker.Api.Services;
@@ -7,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // --- Configuration ---
 var connectionString = builder.Configuration.GetConnectionString("Default")

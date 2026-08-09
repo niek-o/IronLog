@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -43,9 +43,9 @@ import { ExerciseResponse, WorkoutSessionResponse, WorkoutSetRequest, WorkoutSet
             <input type="number" min="1" max="10" [(ngModel)]="newSet.rpe" name="rpe" placeholder="RPE" />
             <button class="btn btn-primary" (click)="addSet()">+ Add set</button>
           </div>
-          @if (templateExerciseIds) {
+          @if (templateExerciseIds()) {
             <label class="checkbox-row">
-              <input type="checkbox" [(ngModel)]="showAllExercises" name="showAllExercises" (ngModelChange)="onShowAllChange()" />
+              <input type="checkbox" [ngModel]="showAllExercises()" name="showAllExercises" (ngModelChange)="onShowAllChange($event)" />
               Show all exercises, not just this template's
             </label>
           }
@@ -78,7 +78,7 @@ import { ExerciseResponse, WorkoutSessionResponse, WorkoutSetRequest, WorkoutSet
       <p class="empty-state">Loading workout…</p>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .page { max-width: 900px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
     .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
@@ -119,27 +119,30 @@ export class WorkoutSessionComponent implements OnInit {
   session = signal<WorkoutSessionResponse | null>(null);
   exercises = signal<ExerciseResponse[]>([]);
 
-  templateExerciseIds: Set<string> | null = null;
-  showAllExercises = false;
+  templateExerciseIds = signal<Set<string> | null>(null);
+  showAllExercises = signal(false);
   private loadedTemplateId: string | null = null;
 
   newSet: { exerciseId: string; reps: number | null; weightKg: number | null; rpe: number | null } = {
     exerciseId: '', reps: null, weightKg: null, rpe: null,
   };
 
-  availableExercises = (): ExerciseResponse[] => {
+  availableExercises = computed((): ExerciseResponse[] => {
     const all = this.exercises();
-    if (!this.templateExerciseIds || this.showAllExercises) return all;
-    return all.filter((ex) => this.templateExerciseIds!.has(ex.id));
-  };
+    const ids = this.templateExerciseIds();
+    if (!ids || this.showAllExercises()) return all;
+    return all.filter((ex) => ids.has(ex.id));
+  });
 
-  onShowAllChange(): void {
-    if (!this.showAllExercises && this.templateExerciseIds && !this.templateExerciseIds.has(this.newSet.exerciseId)) {
+  onShowAllChange(value: boolean): void {
+    this.showAllExercises.set(value);
+    const ids = this.templateExerciseIds();
+    if (!value && ids && !ids.has(this.newSet.exerciseId)) {
       this.newSet.exerciseId = '';
     }
   }
 
-  groupedSets = () => {
+  groupedSets = computed(() => {
     const s = this.session();
     if (!s) return [];
     const map = new Map<string, { exerciseId: string; exerciseName: string; sets: typeof s.sets }>();
@@ -150,7 +153,7 @@ export class WorkoutSessionComponent implements OnInit {
       map.get(set.exerciseId)!.sets.push(set);
     }
     return Array.from(map.values());
-  };
+  });
 
   ngOnInit(): void {
     this.exerciseService.list().subscribe((data) => this.exercises.set(data));
@@ -163,11 +166,11 @@ export class WorkoutSessionComponent implements OnInit {
       this.session.set(data);
       if (data.templateId && data.templateId !== this.loadedTemplateId) {
         this.templateService.get(data.templateId).subscribe((template) => {
-          this.templateExerciseIds = new Set(template.exercises.map((e) => e.exerciseId));
+          this.templateExerciseIds.set(new Set(template.exercises.map((e) => e.exerciseId)));
           this.loadedTemplateId = data.templateId!;
         });
       } else if (!data.templateId) {
-        this.templateExerciseIds = null;
+        this.templateExerciseIds.set(null);
         this.loadedTemplateId = null;
       }
     });

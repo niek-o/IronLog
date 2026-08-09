@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, inject, signal, viewChild, effect, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
@@ -22,22 +22,22 @@ Chart.register(...registerables);
         <a routerLink="/workouts" class="btn btn-primary">+ Start a workout</a>
       </header>
 
-      @if (summary) {
+      @if (summary(); as s) {
         <div class="stat-grid">
           <div class="card stat">
-            <span class="stat-value mono">{{ summary!.totalWorkouts }}</span>
+            <span class="stat-value mono">{{ s.totalWorkouts }}</span>
             <span class="stat-label">Total workouts</span>
           </div>
           <div class="card stat">
-            <span class="stat-value mono">{{ summary!.workoutsThisWeek }}</span>
+            <span class="stat-value mono">{{ s.workoutsThisWeek }}</span>
             <span class="stat-label">This week</span>
           </div>
           <div class="card stat">
-            <span class="stat-value mono">{{ summary!.totalVolumeKgThisWeek | number: '1.0-0' }}<small>kg</small></span>
+            <span class="stat-value mono">{{ s.totalVolumeKgThisWeek | number: '1.0-0' }}<small>kg</small></span>
             <span class="stat-label">Volume this week</span>
           </div>
           <div class="card stat">
-            <span class="stat-value mono accent">{{ summary!.currentStreakDays }}<small>d</small></span>
+            <span class="stat-value mono accent">{{ s.currentStreakDays }}<small>d</small></span>
             <span class="stat-label">Current streak</span>
           </div>
         </div>
@@ -45,7 +45,7 @@ Chart.register(...registerables);
         <div class="grid-2">
           <div class="card">
             <h3>Weekly volume — last 8 weeks</h3>
-            @if (summary!.weeklyVolume.length) {
+            @if (s.weeklyVolume.length) {
               <canvas #volumeChart height="220"></canvas>
             } @else {
               <p class="empty-state">Log a workout to see your volume trend here.</p>
@@ -54,7 +54,7 @@ Chart.register(...registerables);
 
           <div class="card">
             <h3>Latest body metrics</h3>
-            @if (summary!.latestBodyMetric; as m) {
+            @if (s.latestBodyMetric; as m) {
               <ul class="metric-list">
                 @if (m.weightKg) { <li><span>Weight</span><span class="mono">{{ m.weightKg }} kg</span></li> }
                 @if (m.bodyFatPercent) { <li><span>Body fat</span><span class="mono">{{ m.bodyFatPercent }}%</span></li> }
@@ -74,7 +74,7 @@ Chart.register(...registerables);
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
     .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem; }
@@ -97,59 +97,55 @@ Chart.register(...registerables);
     }
   `],
 })
-export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
   private statsService = inject(StatsService);
 
-  @ViewChild('volumeChart') volumeChartRef?: ElementRef<HTMLCanvasElement>;
+  volumeChart = viewChild<ElementRef<HTMLCanvasElement>>('volumeChart');
   private chart?: Chart;
 
-  summary: DashboardSummary | null = null;
+  summary = signal<DashboardSummary | null>(null);
 
-  ngOnInit(): void {
-    this.statsService.dashboard().subscribe((data) => {
-      this.summary = data;
-      queueMicrotask(() => this.renderChart());
+  constructor() {
+    effect(() => {
+      const canvasRef = this.volumeChart();
+      const data = this.summary();
+      if (!canvasRef || !data || !data.weeklyVolume.length || this.chart) return;
+
+      const ctx = canvasRef.nativeElement.getContext('2d');
+      if (!ctx) return;
+
+      this.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.weeklyVolume.map((v) => v.week),
+          datasets: [
+            {
+              label: 'Volume (kg)',
+              data: data.weeklyVolume.map((v) => v.totalVolumeKg),
+              backgroundColor: '#e8ff57',
+              borderRadius: 4,
+              maxBarThickness: 36,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#9ba1ac' }, grid: { display: false } },
+            y: { ticks: { color: '#9ba1ac' }, grid: { color: '#2e333d' } },
+          },
+        },
+      });
     });
   }
 
-  ngAfterViewInit(): void {
-    this.renderChart();
+  ngOnInit(): void {
+    this.statsService.dashboard().subscribe((data) => this.summary.set(data));
   }
 
   ngOnDestroy(): void {
     this.chart?.destroy();
-  }
-
-  private renderChart(): void {
-    if (!this.summary || !this.volumeChartRef || this.chart) return;
-    if (!this.summary.weeklyVolume.length) return;
-
-    const ctx = this.volumeChartRef.nativeElement.getContext('2d');
-    if (!ctx) return;
-
-    this.chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: this.summary.weeklyVolume.map((v) => v.week),
-        datasets: [
-          {
-            label: 'Volume (kg)',
-            data: this.summary.weeklyVolume.map((v) => v.totalVolumeKg),
-            backgroundColor: '#e8ff57',
-            borderRadius: 4,
-            maxBarThickness: 36,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#9ba1ac' }, grid: { display: false } },
-          y: { ticks: { color: '#9ba1ac' }, grid: { color: '#2e333d' } },
-        },
-      },
-    });
   }
 }
