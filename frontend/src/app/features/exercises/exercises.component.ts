@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ExerciseService } from '../../core/services/exercise.service';
 import { ExerciseRequest, ExerciseResponse, MUSCLE_CATEGORIES, MuscleCategory } from '../../core/models/models';
@@ -86,6 +86,7 @@ import { ExerciseRequest, ExerciseResponse, MUSCLE_CATEGORIES, MuscleCategory } 
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
     .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; }

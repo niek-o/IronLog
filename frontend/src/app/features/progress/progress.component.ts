@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
 import { ExerciseService } from '../../core/services/exercise.service';
@@ -46,6 +46,7 @@ Chart.register(...registerables);
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
     .page-head { margin-bottom: 1.5rem; }

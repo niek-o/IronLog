@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
 import { NavbarComponent } from './shared/components/navbar.component';
@@ -15,6 +15,7 @@ import { NavbarComponent } from './shared/components/navbar.component';
       <router-outlet></router-outlet>
     </main>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     main {
       min-height: 100vh;
