@@ -88,7 +88,7 @@ import { ExerciseResponse, WorkoutSessionResponse, WorkoutSetRequest, WorkoutSet
     .checkbox-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-dim); }
     .add-row select, .add-row input {
       background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-sm);
-      padding: 0.6rem 0.7rem; color: var(--text);
+      padding: 0.6rem 0.7rem; color: var(--text); width: 100%; min-width: 0;
     }
     .exercise-group { margin-bottom: 1rem; }
     .set-table { display: flex; flex-direction: column; }
@@ -98,7 +98,7 @@ import { ExerciseResponse, WorkoutSessionResponse, WorkoutSetRequest, WorkoutSet
     .set-row:last-child { border-bottom: none; }
     .small { padding: 0.3rem 0.6rem; font-size: 0.78rem; }
     .cell-input {
-      width: 100%; background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+      width: 100%; min-width: 0; background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-sm);
       padding: 0.4rem 0.5rem; color: var(--text); font-family: inherit;
     }
     .set-row input[type="checkbox"] { width: 1.1rem; height: 1.1rem; justify-self: center; }

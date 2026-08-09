@@ -102,7 +102,7 @@ import {
     }
     .exercise-row select, .exercise-row input {
       background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-sm);
-      padding: 0.55rem 0.6rem; color: var(--text);
+      padding: 0.55rem 0.6rem; color: var(--text); min-width: 0; width: 100%;
     }
     .form-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.1rem; }
@@ -114,7 +114,18 @@ import {
     .tc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; }
     .small { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
     @media (max-width: 700px) {
-      .exercise-row { grid-template-columns: 1fr 1fr; }
+      .exercise-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-areas:
+          "select select select"
+          "sets reps weight"
+          "remove remove remove";
+      }
+      .exercise-row select { grid-area: select; }
+      .exercise-row input:nth-of-type(1) { grid-area: sets; }
+      .exercise-row input:nth-of-type(2) { grid-area: reps; }
+      .exercise-row input:nth-of-type(3) { grid-area: weight; }
+      .exercise-row button { grid-area: remove; width: 100%; }
     }
   `],
 })
