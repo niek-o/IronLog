@@ -1,0 +1,14 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Env
+.env
+
+# OS
+.DS_Store
