@@ -85,15 +85,16 @@ behind a single reverse proxy or domain later.
 
 ## 3b. Production deployment (Traefik)
 
-If you're deploying behind an existing [Traefik](https://traefik.io/) instance,
-use `docker-compose.prod.yml` instead of the base compose file. It:
+Deploys behind the existing Traefik instance on the server, routing
+`https://ironlog.niek.io` to the app. Use `docker-compose.prod.yml` instead
+of the base compose file. It:
 
 - Drops all published host ports (`5432`, `5000`, `8081`) — only Traefik
-  reaches the app, over an external Docker network.
-- Adds Traefik router/TLS labels to the frontend container, routing
-  `https://$DOMAIN` to it with an HTTP→HTTPS redirect.
-- Refuses to start unless `POSTGRES_PASSWORD`, `JWT_KEY`, and `DOMAIN` are
-  set to real values in `.env` — no silent fallback to dev defaults.
+  reaches the app, over the external `traefik` Docker network.
+- Adds Traefik router/TLS labels to the frontend container
+  (`cloudflare` certresolver, matching the other apps on this host).
+- Refuses to start unless `POSTGRES_PASSWORD` and `JWT_KEY` are set to real
+  values in `.env` — no silent fallback to dev defaults.
 - Keeps Swagger off by default (`ENABLE_SWAGGER=false`).
 
 Set these in `.env` (see `.env.example`):
@@ -101,26 +102,13 @@ Set these in `.env` (see `.env.example`):
 ```
 POSTGRES_PASSWORD=<a real password>
 JWT_KEY=<openssl rand -base64 48>
-DOMAIN=ironlog.niek.io
-TRAEFIK_NETWORK=traefik      # the external network your Traefik instance watches
-CERT_RESOLVER=letsencrypt    # the certresolver name from your Traefik static config
 ```
 
-If the external network doesn't exist yet:
-
-```bash
-docker network create traefik
-```
-
-Then deploy:
+Deploy:
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
-
-`TRAEFIK_NETWORK` and `CERT_RESOLVER` default to `traefik` and
-`letsencrypt` respectively — adjust them in `.env` if your Traefik setup
-uses different names.
 
 ---
 

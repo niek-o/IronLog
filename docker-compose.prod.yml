@@ -26,38 +26,32 @@ services:
     environment:
       CONNECTION_STRING: "Host=db;Port=5432;Database=${POSTGRES_DB:-fitnesstracker};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}"
       JWT_KEY: "${JWT_KEY:?JWT_KEY must be set in .env, e.g. via openssl rand -base64 48}"
-      Cors__AllowedOrigins: "https://${DOMAIN:?DOMAIN must be set in .env}"
+      Cors__AllowedOrigins: "https://ironlog.niek.io"
       ASPNETCORE_ENVIRONMENT: Production
       EnableSwagger: "${ENABLE_SWAGGER:-false}"
 
   frontend:
     build:
       context: ./frontend
-    container_name: fitness-tracker-web
+    container_name: ironlog.niek.io
     restart: unless-stopped
     depends_on:
       - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ironlog.rule=Host(`ironlog.niek.io`)"
+      - "traefik.http.routers.ironlog.entrypoints=web,websecure"
+      - "traefik.http.routers.ironlog.tls=true"
+      - "traefik.http.routers.ironlog.tls.certresolver=cloudflare"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.services.ironlog.loadbalancer.server.port=80"
     networks:
       - default
       - traefik
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik}
-      - traefik.http.routers.ironlog.rule=Host(`${DOMAIN}`)
-      - traefik.http.routers.ironlog.entrypoints=websecure
-      - traefik.http.routers.ironlog.tls=true
-      - traefik.http.routers.ironlog.tls.certresolver=${CERT_RESOLVER:-letsencrypt}
-      - traefik.http.services.ironlog.loadbalancer.server.port=80
-      - traefik.http.routers.ironlog-http.rule=Host(`${DOMAIN}`)
-      - traefik.http.routers.ironlog-http.entrypoints=web
-      - traefik.http.routers.ironlog-http.middlewares=ironlog-https-redirect
-      - traefik.http.middlewares.ironlog-https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.ironlog-https-redirect.redirectscheme.permanent=true
 
 networks:
   traefik:
     external: true
-    name: "${TRAEFIK_NETWORK:-traefik}"
   default:
 
 volumes:
