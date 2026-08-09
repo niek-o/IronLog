@@ -1,0 +1,65 @@
+@if (session()) {
+  <div class="page">
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">{{ session()!.startedAt | date: 'MMM d, y · h:mm a' }}</p>
+        <h1>{{ session()!.name }}</h1>
+      </div>
+      <div class="head-actions">
+        @if (!session()!.completedAt) {
+          <button class="btn btn-primary" (click)="finish()">Mark complete</button>
+        } @else {
+          <span class="badge badge-accent">Completed</span>
+        }
+        <button class="btn btn-danger" (click)="removeSession()">Delete</button>
+      </div>
+    </header>
+
+    <div class="card add-set-card">
+      <h3>Add a set</h3>
+      <div class="add-row">
+        <select [(ngModel)]="newSet.exerciseId" name="exerciseId">
+          <option value="" disabled>Exercise</option>
+          @for (ex of availableExercises(); track ex.id) {
+            <option [value]="ex.id">{{ ex.name }}</option>
+          }
+        </select>
+        <input type="number" min="1" [(ngModel)]="newSet.reps" name="reps" placeholder="Reps" />
+        <input type="number" min="0" step="0.5" [(ngModel)]="newSet.weightKg" name="weightKg" placeholder="kg" />
+        <input type="number" min="1" max="10" [(ngModel)]="newSet.rpe" name="rpe" placeholder="RPE" />
+        <button class="btn btn-primary" (click)="addSet()">+ Add set</button>
+      </div>
+      @if (templateExerciseIds()) {
+        <label class="checkbox-row">
+          <input type="checkbox" [ngModel]="showAllExercises()" name="showAllExercises" (ngModelChange)="onShowAllChange($event)" />
+          Show all exercises, not just this template's
+        </label>
+      }
+    </div>
+
+    @if (groupedSets().length === 0) {
+      <p class="empty-state">No sets logged yet — add your first set above.</p>
+    } @else {
+      @for (group of groupedSets(); track group.exerciseId) {
+        <div class="card exercise-group">
+          <h3>{{ group.exerciseName }}</h3>
+          <div class="set-table">
+            <div class="set-head"><span>#</span><span>Reps</span><span>Weight</span><span>RPE</span><span>Done</span><span></span></div>
+            @for (set of group.sets; track set.id) {
+              <div class="set-row">
+                <span class="mono">{{ set.setNumber }}</span>
+                <input type="number" min="0" class="cell-input" [(ngModel)]="set.reps" [name]="'reps' + set.id" (blur)="saveSet(set)" />
+                <input type="number" min="0" step="0.5" class="cell-input" [(ngModel)]="set.weightKg" [name]="'weight' + set.id" (blur)="saveSet(set)" />
+                <input type="number" min="1" max="10" class="cell-input" [(ngModel)]="set.rpe" [name]="'rpe' + set.id" (blur)="saveSet(set)" placeholder="—" />
+                <input type="checkbox" [(ngModel)]="set.completed" [name]="'done' + set.id" (change)="saveSet(set)" />
+                <button class="btn btn-ghost small" (click)="removeSet(set.id)">Remove</button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+} @else {
+  <p class="empty-state">Loading workout…</p>
+}

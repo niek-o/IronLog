@@ -1,0 +1,33 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">History</p>
+      <h1>Workouts</h1>
+    </div>
+    <div class="quick-start">
+      <input [(ngModel)]="quickName" placeholder="Session name, e.g. Leg day" name="quickName" />
+      <button class="btn btn-primary" (click)="startBlank()">+ Start blank workout</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="empty-state">Loading history…</p>
+  } @else if (sessions().length === 0) {
+    <p class="empty-state">No workouts logged yet. Start one above, or launch from a template.</p>
+  } @else {
+    <div class="list">
+      @for (s of sessions(); track s.id) {
+        <button class="card session-row" (click)="open(s)">
+          <div class="left">
+            <h3>{{ s.name }}</h3>
+            <span class="meta">{{ s.startedAt | date: 'MMM d, y · h:mm a' }} @if (s.templateName) { · {{ s.templateName }} }</span>
+          </div>
+          <div class="right">
+            <span class="badge" [class.badge-accent]="s.completedAt">{{ s.completedAt ? 'Completed' : 'In progress' }}</span>
+            <span class="mono set-count">{{ s.sets.length }} sets</span>
+          </div>
+        </button>
+      }
+    </div>
+  }
+</div>

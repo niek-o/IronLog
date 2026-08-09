@@ -1,0 +1,5 @@
+.page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
+.page-head { margin-bottom: 1.5rem; }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; color: var(--text-faint); margin-bottom: 0.25rem; }
+.picker-card { margin-bottom: 1.5rem; max-width: 380px; }
+.picker-card .field { margin-bottom: 0; }

@@ -1,0 +1,86 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Body</p>
+      <h1>Body metrics</h1>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ Log measurement</button>
+  </header>
+
+  @if (formOpen()) {
+    <div class="card form-card">
+      <h3>{{ editingId() ? 'Edit measurement' : 'New measurement' }}</h3>
+      <div class="row">
+        <div class="field">
+          <label for="date">Date</label>
+          <input id="date" type="date" name="date" [(ngModel)]="form.date" required />
+        </div>
+        <div class="field">
+          <label for="weight">Weight (kg)</label>
+          <input id="weight" type="number" step="0.1" name="weight" [(ngModel)]="form.weightKg" />
+        </div>
+        <div class="field">
+          <label for="bf">Body fat (%)</label>
+          <input id="bf" type="number" step="0.1" name="bf" [(ngModel)]="form.bodyFatPercent" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="chest">Chest (cm)</label>
+          <input id="chest" type="number" step="0.1" name="chest" [(ngModel)]="form.chestCm" />
+        </div>
+        <div class="field">
+          <label for="waist">Waist (cm)</label>
+          <input id="waist" type="number" step="0.1" name="waist" [(ngModel)]="form.waistCm" />
+        </div>
+        <div class="field">
+          <label for="hips">Hips (cm)</label>
+          <input id="hips" type="number" step="0.1" name="hips" [(ngModel)]="form.hipsCm" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="arms">Arms (cm)</label>
+          <input id="arms" type="number" step="0.1" name="arms" [(ngModel)]="form.armsCm" />
+        </div>
+        <div class="field">
+          <label for="thighs">Thighs (cm)</label>
+          <input id="thighs" type="number" step="0.1" name="thighs" [(ngModel)]="form.thighsCm" />
+        </div>
+        <div class="field">
+          <label for="notes">Notes</label>
+          <input id="notes" name="notes" [(ngModel)]="form.notes" placeholder="Optional" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" (click)="closeForm()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="save()">{{ editingId() ? 'Save changes' : 'Log measurement' }}</button>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="empty-state">Loading history…</p>
+  } @else if (metrics().length === 0) {
+    <p class="empty-state">No measurements logged yet.</p>
+  } @else {
+    <div class="table">
+      <div class="table-head">
+        <span>Date</span><span>Weight</span><span>Body fat</span><span>Chest</span><span>Waist</span><span></span>
+      </div>
+      @for (m of metrics(); track m.id) {
+        <div class="table-row">
+          <span>{{ m.date | date: 'MMM d, y' }}</span>
+          <span class="mono">{{ m.weightKg ?? '—' }}</span>
+          <span class="mono">{{ m.bodyFatPercent ?? '—' }}</span>
+          <span class="mono">{{ m.chestCm ?? '—' }}</span>
+          <span class="mono">{{ m.waistCm ?? '—' }}</span>
+          <span class="row-actions">
+            <button class="btn btn-ghost small" (click)="openEdit(m)">Edit</button>
+            <button class="btn btn-danger small" (click)="remove(m)">Delete</button>
+          </span>
+        </div>
+      }
+    </div>
+  }
+</div>

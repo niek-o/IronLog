@@ -1,0 +1,60 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Overview</p>
+      <h1>Welcome back, {{ auth.currentUser()?.firstName }}</h1>
+    </div>
+    <a routerLink="/workouts" class="btn btn-primary">+ Start a workout</a>
+  </header>
+
+  @if (summary(); as s) {
+    <div class="stat-grid">
+      <div class="card stat">
+        <span class="stat-value mono">{{ s.totalWorkouts }}</span>
+        <span class="stat-label">Total workouts</span>
+      </div>
+      <div class="card stat">
+        <span class="stat-value mono">{{ s.workoutsThisWeek }}</span>
+        <span class="stat-label">This week</span>
+      </div>
+      <div class="card stat">
+        <span class="stat-value mono">{{ s.totalVolumeKgThisWeek | number: '1.0-0' }}<small>kg</small></span>
+        <span class="stat-label">Volume this week</span>
+      </div>
+      <div class="card stat">
+        <span class="stat-value mono accent">{{ s.currentStreakDays }}<small>d</small></span>
+        <span class="stat-label">Current streak</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Weekly volume — last 8 weeks</h3>
+        @if (s.weeklyVolume.length) {
+          <canvas #volumeChart height="220"></canvas>
+        } @else {
+          <p class="empty-state">Log a workout to see your volume trend here.</p>
+        }
+      </div>
+
+      <div class="card">
+        <h3>Latest body metrics</h3>
+        @if (s.latestBodyMetric; as m) {
+          <ul class="metric-list">
+            @if (m.weightKg) { <li><span>Weight</span><span class="mono">{{ m.weightKg }} kg</span></li> }
+            @if (m.bodyFatPercent) { <li><span>Body fat</span><span class="mono">{{ m.bodyFatPercent }}%</span></li> }
+            @if (m.chestCm) { <li><span>Chest</span><span class="mono">{{ m.chestCm }} cm</span></li> }
+            @if (m.waistCm) { <li><span>Waist</span><span class="mono">{{ m.waistCm }} cm</span></li> }
+            @if (m.armsCm) { <li><span>Arms</span><span class="mono">{{ m.armsCm }} cm</span></li> }
+          </ul>
+          <p class="metric-date">as of {{ m.date }}</p>
+        } @else {
+          <p class="empty-state">No body metrics logged yet.</p>
+        }
+        <a routerLink="/metrics" class="btn btn-ghost small-link">Log a measurement →</a>
+      </div>
+    </div>
+  } @else {
+    <p class="empty-state">Loading your stats…</p>
+  }
+</div>

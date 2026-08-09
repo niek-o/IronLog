@@ -1,0 +1,73 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Routines</p>
+      <h1>Workout templates</h1>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ New template</button>
+  </header>
+
+  @if (formOpen()) {
+    <div class="card form-card">
+      <h3>{{ editingId() ? 'Edit template' : 'New template' }}</h3>
+      <div class="field">
+        <label for="tname">Name</label>
+        <input id="tname" [(ngModel)]="form.name" name="tname" required placeholder="e.g. Push day" />
+      </div>
+      <div class="field">
+        <label for="tdesc">Description</label>
+        <input id="tdesc" [(ngModel)]="form.description" name="tdesc" placeholder="Optional" />
+      </div>
+
+      <h3 class="sub-head">Exercises</h3>
+      @for (row of rows; track row; let i = $index) {
+        <div class="exercise-row">
+          <select [(ngModel)]="row.exerciseId" [name]="'ex' + i">
+            <option value="" disabled>Select exercise</option>
+            @for (ex of exercises(); track ex.id) {
+              <option [value]="ex.id">{{ ex.name }}</option>
+            }
+          </select>
+          <input type="number" min="1" [(ngModel)]="row.targetSets" [name]="'sets' + i" placeholder="Sets" />
+          <input type="number" min="1" [(ngModel)]="row.targetReps" [name]="'reps' + i" placeholder="Reps" />
+          <input type="number" min="0" step="0.5" [(ngModel)]="row.targetWeightKg" [name]="'weight' + i" placeholder="kg" />
+          <button type="button" class="btn btn-danger small" (click)="removeRow(i)">Remove</button>
+        </div>
+      }
+      <button type="button" class="btn btn-ghost" (click)="addRow()">+ Add exercise to template</button>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" (click)="closeForm()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="save()">{{ editingId() ? 'Save changes' : 'Create template' }}</button>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="empty-state">Loading templates…</p>
+  } @else if (templates().length === 0) {
+    <p class="empty-state">No templates yet — build one to speed up logging.</p>
+  } @else {
+    <div class="grid">
+      @for (t of templates(); track t.id) {
+        <div class="card template-card">
+          <div class="tc-head">
+            <h3>{{ t.name }}</h3>
+            <span class="badge">{{ t.exercises.length }} exercises</span>
+          </div>
+          @if (t.description) { <p>{{ t.description }}</p> }
+          <ul class="ex-list">
+            @for (e of t.exercises; track e.id) {
+              <li>{{ e.exerciseName }} <span class="mono dim">{{ e.targetSets }}×{{ e.targetReps }}</span></li>
+            }
+          </ul>
+          <div class="tc-actions">
+            <button class="btn btn-primary small" (click)="startFromTemplate(t)">Start workout</button>
+            <button class="btn btn-ghost small" (click)="openEdit(t)">Edit</button>
+            <button class="btn btn-danger small" (click)="remove(t)">Delete</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

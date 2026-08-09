@@ -7,23 +7,9 @@ import { NavbarComponent } from './shared/components/navbar.component';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, NavbarComponent],
-  template: `
-    @if (auth.isAuthenticated()) {
-      <app-navbar></app-navbar>
-    }
-    <main [class.with-nav]="auth.isAuthenticated()">
-      <router-outlet></router-outlet>
-    </main>
-  `,
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`
-    main {
-      min-height: 100vh;
-    }
-    main.with-nav {
-      min-height: calc(100vh - 60px);
-    }
-  `],
 })
 export class AppComponent {
   auth = inject(AuthService);
