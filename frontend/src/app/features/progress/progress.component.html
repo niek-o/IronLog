@@ -1,33 +1,32 @@
-<div class="page">
-  <header class="page-head">
-    <div>
-      <p class="eyebrow">Trends</p>
-      <h1>Progress</h1>
-    </div>
+<div class="max-w-[1000px] mx-auto px-7 pt-8 pb-16">
+  <header class="mb-6">
+    <p class="uppercase tracking-wide text-xs text-text-faint mb-1">Trends</p>
+    <h1 class="text-[1.9rem] m-0">Progress</h1>
   </header>
 
-  <div class="card picker-card">
-    <div class="field">
-      <label for="exercise">Exercise</label>
-      <select id="exercise" name="exercise" [(ngModel)]="selectedExerciseId" (ngModelChange)="onSelect($event)">
+  <app-card class="block mb-6 max-w-[380px]">
+    <div class="flex flex-col gap-1.5 min-w-0">
+      <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="exercise">Exercise</label>
+      <select id="exercise" name="exercise" [(ngModel)]="selectedExerciseId" (ngModelChange)="onSelect($event)"
+              class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none">
         <option value="" disabled>Choose an exercise</option>
         @for (ex of exercises(); track ex.id) {
           <option [value]="ex.id">{{ ex.name }}</option>
         }
       </select>
     </div>
-  </div>
+  </app-card>
 
   @if (loading()) {
-    <p class="empty-state">Loading progress…</p>
+    <p class="text-center py-12 px-4 text-text-faint">Loading progress…</p>
   } @else if (progress() && progress()!.points.length === 0) {
-    <p class="empty-state">No completed sets logged for this exercise yet.</p>
+    <p class="text-center py-12 px-4 text-text-faint">No completed sets logged for this exercise yet.</p>
   } @else if (progress()) {
-    <div class="card">
-      <h3>{{ progress()!.exerciseName }} — estimated 1RM &amp; max weight over time</h3>
+    <app-card class="block">
+      <h3 class="text-[1.05rem] mb-2">{{ progress()!.exerciseName }} — estimated 1RM &amp; max weight over time</h3>
       <canvas #progressChart height="260"></canvas>
-    </div>
+    </app-card>
   } @else {
-    <p class="empty-state">Pick an exercise above to see your trend.</p>
+    <p class="text-center py-12 px-4 text-text-faint">Pick an exercise above to see your trend.</p>
   }
 </div>

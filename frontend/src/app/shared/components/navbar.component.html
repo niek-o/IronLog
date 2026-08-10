@@ -1,32 +1,42 @@
-<nav class="shell">
-  <div class="brand">
-    <span class="plate"></span>
-    <span>IRON<span class="accent">LOG</span></span>
+<nav class="sticky top-0 z-20 flex items-center flex-wrap gap-8 px-7 py-3.5 bg-surface border-b border-border
+            max-[900px]:px-[1.1rem] max-[900px]:py-[0.85rem] max-[900px]:gap-[0.6rem]">
+  <div class="flex items-center gap-2 font-display text-[1.05rem] tracking-wide whitespace-nowrap">
+    <span class="w-[18px] h-[18px] rounded-full border-4 border-accent shadow-[inset_0_0_0_2px_var(--color-bg)]"></span>
+    <span>IRON<span class="text-accent">LOG</span></span>
   </div>
 
-  <div class="links" [class.open]="menuOpen()">
-    <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Dashboard</a>
-    <a routerLink="/workouts" routerLinkActive="active" (click)="closeMenu()">Workouts</a>
-    <a routerLink="/templates" routerLinkActive="active" (click)="closeMenu()">Templates</a>
-    <a routerLink="/exercises" routerLinkActive="active" (click)="closeMenu()">Exercises</a>
-    <a routerLink="/progress" routerLinkActive="active" (click)="closeMenu()">Progress</a>
-    <a routerLink="/metrics" routerLinkActive="active" (click)="closeMenu()">Body Metrics</a>
-  </div>
-
-  <div class="user">
-    @if (auth.currentUser(); as user) {
-      <span class="name">{{ user.firstName }} {{ user.lastName }}</span>
+  <div [class]="linksClasses()">
+    @for (link of links; track link.path) {
+      <a
+        [routerLink]="link.path"
+        routerLinkActive="text-accent! border-accent! max-[900px]:bg-surface-raised"
+        (click)="closeMenu()"
+        class="text-text-dim text-[0.88rem] font-semibold uppercase tracking-wide whitespace-nowrap
+               py-1.5 border-b-2 border-transparent hover:text-text hover:no-underline
+               max-[900px]:w-full max-[900px]:py-[0.9rem] max-[900px]:px-1
+               max-[900px]:border-b max-[900px]:border-border"
+      >
+        {{ link.label }}
+      </a>
     }
-    <button class="btn btn-ghost" (click)="logout()">Sign out</button>
+  </div>
+
+  <div class="flex items-center gap-3.5 max-[900px]:order-2 max-[900px]:ml-auto">
+    @if (auth.currentUser(); as user) {
+      <span class="text-text-dim text-[0.85rem] whitespace-nowrap max-[900px]:hidden">{{ user.firstName }} {{ user.lastName }}</span>
+    }
+    <button appButton variant="ghost" (click)="logout()">Sign out</button>
   </div>
 
   <button
-    class="menu-toggle"
-    [class.open]="menuOpen()"
+    class="appearance-none hidden max-[900px]:flex flex-col justify-center items-center gap-1 w-[38px] h-[38px] shrink-0
+           bg-transparent border border-border-light rounded-md max-[900px]:order-3"
     (click)="toggleMenu()"
     [attr.aria-expanded]="menuOpen()"
     aria-label="Toggle menu"
   >
-    <span></span><span></span><span></span>
+    <span class="block w-[18px] h-0.5 bg-text rounded-sm transition-transform" [class]="menuOpen() ? 'translate-y-[6px] rotate-45' : ''"></span>
+    <span class="block w-[18px] h-0.5 bg-text rounded-sm transition-opacity" [class]="menuOpen() ? 'opacity-0' : ''"></span>
+    <span class="block w-[18px] h-0.5 bg-text rounded-sm transition-transform" [class]="menuOpen() ? '-translate-y-[6px] -rotate-45' : ''"></span>
   </button>
 </nav>

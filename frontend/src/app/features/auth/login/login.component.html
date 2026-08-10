@@ -1,30 +1,37 @@
-<div class="auth-wrap">
-  <div class="card auth-card">
-    <div class="brand-mark">
-      <span class="plate"></span>
-      <h1>IRON<span class="accent">LOG</span></h1>
+<div class="relative min-h-screen flex items-center justify-center p-6 overflow-hidden">
+  <om-aurora class="absolute inset-0 -z-10"></om-aurora>
+  <app-card class="relative w-full max-w-[380px]">
+    <div class="flex items-center gap-2.5 mb-1">
+      <span class="w-[22px] h-[22px] rounded-full border-[5px] border-accent shadow-[inset_0_0_0_2px_var(--color-bg)]"></span>
+      <h1 class="text-2xl font-display m-0">IRON<span class="text-accent">LOG</span></h1>
     </div>
-    <p class="tag">Log in and get back under the bar.</p>
+    <p class="text-text-dim mb-6">Log in and get back under the bar.</p>
 
     <form (ngSubmit)="submit()">
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email" [(ngModel)]="email" required autocomplete="email" />
+      <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+        <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="email">Email</label>
+        <input
+          id="email" type="email" name="email" [(ngModel)]="email" required autocomplete="email"
+          class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none"
+        />
       </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" [(ngModel)]="password" required autocomplete="current-password" />
+      <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+        <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="password">Password</label>
+        <input
+          id="password" type="password" name="password" [(ngModel)]="password" required autocomplete="current-password"
+          class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none"
+        />
       </div>
 
       @if (error()) {
-        <p class="error-text">{{ error() }}</p>
+        <p class="text-danger text-sm mt-1 mb-2">{{ error() }}</p>
       }
 
-      <button class="btn btn-primary full" type="submit" [disabled]="loading()">
+      <button appButton variant="primary" type="submit" [disabled]="loading()" class="w-full mt-2">
         {{ loading() ? 'Signing in…' : 'Sign in' }}
       </button>
     </form>
 
-    <p class="switch">New here? <a routerLink="/register">Create an account</a></p>
-  </div>
+    <p class="mt-5 text-center text-[0.88rem]">New here? <a routerLink="/register">Create an account</a></p>
+  </app-card>
 </div>

@@ -2,17 +2,18 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } 
 import { FormsModule } from '@angular/forms';
 import { ExerciseService } from '../../core/services/exercise.service';
 import { ExerciseRequest, ExerciseResponse, MUSCLE_CATEGORIES, MuscleCategory } from '../../core/models/models';
+import { ButtonComponent, CardComponent, BadgeComponent, ConfirmService } from '../../shared/ui';
 
 @Component({
   selector: 'app-exercises',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ButtonComponent, CardComponent, BadgeComponent],
   templateUrl: './exercises.component.html',
-  styleUrl: './exercises.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesComponent implements OnInit {
   private service = inject(ExerciseService);
+  private confirmService = inject(ConfirmService);
 
   categories = MUSCLE_CATEGORIES;
   all = signal<ExerciseResponse[]>([]);
@@ -71,7 +72,10 @@ export class ExercisesComponent implements OnInit {
   }
 
   remove(ex: ExerciseResponse): void {
-    if (!confirm(`Delete "${ex.name}"? This cannot be undone.`)) return;
-    this.service.delete(ex.id).subscribe(() => this.load());
+    this.confirmService
+      .confirm({ title: 'Delete exercise', message: `Delete "${ex.name}"? This cannot be undone.`, confirmLabel: 'Delete', danger: true })
+      .subscribe((confirmed) => {
+        if (confirmed) this.service.delete(ex.id).subscribe(() => this.load());
+      });
   }
 }

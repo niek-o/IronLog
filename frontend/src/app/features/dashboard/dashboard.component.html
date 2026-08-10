@@ -1,60 +1,60 @@
-<div class="page">
-  <header class="page-head">
+<div class="max-w-[1100px] mx-auto px-7 pt-8 pb-16">
+  <header class="flex items-end justify-between mb-7 flex-wrap gap-4">
     <div>
-      <p class="eyebrow">Overview</p>
-      <h1>Welcome back, {{ auth.currentUser()?.firstName }}</h1>
+      <p class="uppercase tracking-wide text-xs text-text-faint mb-1">Overview</p>
+      <h1 class="text-[1.9rem] m-0">Welcome back, {{ auth.currentUser()?.firstName }}</h1>
     </div>
-    <a routerLink="/workouts" class="btn btn-primary">+ Start a workout</a>
+    <a appButton routerLink="/workouts" variant="primary">+ Start a workout</a>
   </header>
 
   @if (summary(); as s) {
-    <div class="stat-grid">
-      <div class="card stat">
-        <span class="stat-value mono">{{ s.totalWorkouts }}</span>
-        <span class="stat-label">Total workouts</span>
-      </div>
-      <div class="card stat">
-        <span class="stat-value mono">{{ s.workoutsThisWeek }}</span>
-        <span class="stat-label">This week</span>
-      </div>
-      <div class="card stat">
-        <span class="stat-value mono">{{ s.totalVolumeKgThisWeek | number: '1.0-0' }}<small>kg</small></span>
-        <span class="stat-label">Volume this week</span>
-      </div>
-      <div class="card stat">
-        <span class="stat-value mono accent">{{ s.currentStreakDays }}<small>d</small></span>
-        <span class="stat-label">Current streak</span>
-      </div>
+    <div class="grid grid-cols-4 gap-4 mb-6 max-[900px]:grid-cols-2">
+      <app-card class="flex flex-col gap-1.5">
+        <span class="font-mono text-[2rem] font-bold"><om-number-ticker [countTo]="s.totalWorkouts" /></span>
+        <span class="text-text-dim text-[0.82rem] uppercase tracking-wide">Total workouts</span>
+      </app-card>
+      <app-card class="flex flex-col gap-1.5">
+        <span class="font-mono text-[2rem] font-bold"><om-number-ticker [countTo]="s.workoutsThisWeek" /></span>
+        <span class="text-text-dim text-[0.82rem] uppercase tracking-wide">This week</span>
+      </app-card>
+      <app-card class="flex flex-col gap-1.5">
+        <span class="font-mono text-[2rem] font-bold"><om-number-ticker [countTo]="round(s.totalVolumeKgThisWeek)" /><small class="text-base text-text-faint ml-0.5">kg</small></span>
+        <span class="text-text-dim text-[0.82rem] uppercase tracking-wide">Volume this week</span>
+      </app-card>
+      <app-card class="flex flex-col gap-1.5">
+        <span class="font-mono text-[2rem] font-bold text-accent"><om-number-ticker [countTo]="s.currentStreakDays" /><small class="text-base text-text-faint ml-0.5">d</small></span>
+        <span class="text-text-dim text-[0.82rem] uppercase tracking-wide">Current streak</span>
+      </app-card>
     </div>
 
-    <div class="grid-2">
-      <div class="card">
-        <h3>Weekly volume — last 8 weeks</h3>
+    <div class="grid grid-cols-[1.4fr_1fr] gap-5 max-[900px]:grid-cols-1">
+      <app-card>
+        <h3 class="text-[1.05rem] mb-2">Weekly volume — last 8 weeks</h3>
         @if (s.weeklyVolume.length) {
           <canvas #volumeChart height="220"></canvas>
         } @else {
-          <p class="empty-state">Log a workout to see your volume trend here.</p>
+          <p class="text-center py-12 px-4 text-text-faint">Log a workout to see your volume trend here.</p>
         }
-      </div>
+      </app-card>
 
-      <div class="card">
-        <h3>Latest body metrics</h3>
+      <app-card>
+        <h3 class="text-[1.05rem] mb-2">Latest body metrics</h3>
         @if (s.latestBodyMetric; as m) {
-          <ul class="metric-list">
-            @if (m.weightKg) { <li><span>Weight</span><span class="mono">{{ m.weightKg }} kg</span></li> }
-            @if (m.bodyFatPercent) { <li><span>Body fat</span><span class="mono">{{ m.bodyFatPercent }}%</span></li> }
-            @if (m.chestCm) { <li><span>Chest</span><span class="mono">{{ m.chestCm }} cm</span></li> }
-            @if (m.waistCm) { <li><span>Waist</span><span class="mono">{{ m.waistCm }} cm</span></li> }
-            @if (m.armsCm) { <li><span>Arms</span><span class="mono">{{ m.armsCm }} cm</span></li> }
+          <ul class="list-none p-0 m-0 mb-3">
+            @if (m.weightKg) { <li class="flex justify-between py-2 border-b border-border"><span>Weight</span><span class="font-mono">{{ m.weightKg }} kg</span></li> }
+            @if (m.bodyFatPercent) { <li class="flex justify-between py-2 border-b border-border"><span>Body fat</span><span class="font-mono">{{ m.bodyFatPercent }}%</span></li> }
+            @if (m.chestCm) { <li class="flex justify-between py-2 border-b border-border"><span>Chest</span><span class="font-mono">{{ m.chestCm }} cm</span></li> }
+            @if (m.waistCm) { <li class="flex justify-between py-2 border-b border-border"><span>Waist</span><span class="font-mono">{{ m.waistCm }} cm</span></li> }
+            @if (m.armsCm) { <li class="flex justify-between py-2 last:border-b-0"><span>Arms</span><span class="font-mono">{{ m.armsCm }} cm</span></li> }
           </ul>
-          <p class="metric-date">as of {{ m.date }}</p>
+          <p class="text-[0.78rem] text-text-faint mb-3">as of {{ m.date }}</p>
         } @else {
-          <p class="empty-state">No body metrics logged yet.</p>
+          <p class="text-center py-12 px-4 text-text-faint">No body metrics logged yet.</p>
         }
-        <a routerLink="/metrics" class="btn btn-ghost small-link">Log a measurement →</a>
-      </div>
+        <a appButton routerLink="/metrics" variant="ghost" small>Log a measurement →</a>
+      </app-card>
     </div>
   } @else {
-    <p class="empty-state">Loading your stats…</p>
+    <p class="text-center py-12 px-4 text-text-faint">Loading your stats…</p>
   }
 </div>

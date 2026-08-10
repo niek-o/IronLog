@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MetricService } from '../../core/services/metric.service';
 import { BodyMetricRequest, BodyMetricResponse } from '../../core/models/models';
+import { ButtonComponent, CardComponent, ConfirmService } from '../../shared/ui';
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -11,13 +12,13 @@ function today(): string {
 @Component({
   selector: 'app-metrics',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, ButtonComponent, CardComponent],
   templateUrl: './metrics.component.html',
-  styleUrl: './metrics.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetricsComponent implements OnInit {
   private service = inject(MetricService);
+  private confirmService = inject(ConfirmService);
 
   metrics = signal<BodyMetricResponse[]>([]);
   loading = signal(true);
@@ -73,7 +74,10 @@ export class MetricsComponent implements OnInit {
   }
 
   remove(m: BodyMetricResponse): void {
-    if (!confirm(`Delete the measurement from ${m.date}?`)) return;
-    this.service.delete(m.id).subscribe(() => this.load());
+    this.confirmService
+      .confirm({ title: 'Delete measurement', message: `Delete the measurement from ${m.date}?`, confirmLabel: 'Delete', danger: true })
+      .subscribe((confirmed) => {
+        if (confirmed) this.service.delete(m.id).subscribe(() => this.load());
+      });
   }
 }

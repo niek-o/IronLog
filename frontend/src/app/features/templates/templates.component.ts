@@ -10,13 +10,13 @@ import {
   TemplateRequest,
   TemplateResponse,
 } from '../../core/models/models';
+import { ButtonComponent, CardComponent, BadgeComponent, ConfirmService } from '../../shared/ui';
 
 @Component({
   selector: 'app-templates',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ButtonComponent, CardComponent, BadgeComponent],
   templateUrl: './templates.component.html',
-  styleUrl: './templates.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TemplatesComponent implements OnInit {
@@ -24,6 +24,7 @@ export class TemplatesComponent implements OnInit {
   private exerciseService = inject(ExerciseService);
   private workoutService = inject(WorkoutService);
   private router = inject(Router);
+  private confirmService = inject(ConfirmService);
 
   templates = signal<TemplateResponse[]>([]);
   exercises = signal<ExerciseResponse[]>([]);
@@ -98,8 +99,11 @@ export class TemplatesComponent implements OnInit {
   }
 
   remove(t: TemplateResponse): void {
-    if (!confirm(`Delete template "${t.name}"?`)) return;
-    this.templateService.delete(t.id).subscribe(() => this.load());
+    this.confirmService
+      .confirm({ title: 'Delete template', message: `Delete template "${t.name}"?`, confirmLabel: 'Delete', danger: true })
+      .subscribe((confirmed) => {
+        if (confirmed) this.templateService.delete(t.id).subscribe(() => this.load());
+      });
   }
 
   startFromTemplate(t: TemplateResponse): void {

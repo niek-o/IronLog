@@ -4,15 +4,15 @@ import { Chart, registerables } from 'chart.js';
 import { ExerciseService } from '../../core/services/exercise.service';
 import { StatsService } from '../../core/services/stats.service';
 import { ExerciseResponse, ExerciseProgressResponse } from '../../core/models/models';
+import { CardComponent } from '../../shared/ui';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-progress',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CardComponent],
   templateUrl: './progress.component.html',
-  styleUrl: './progress.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressComponent implements OnInit, OnDestroy {

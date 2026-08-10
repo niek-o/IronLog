@@ -1,72 +1,80 @@
-<div class="page">
-  <header class="page-head">
+<div class="max-w-[1100px] mx-auto px-7 pt-8 pb-16">
+  <header class="flex items-end justify-between mb-6 flex-wrap gap-4">
     <div>
-      <p class="eyebrow">Routines</p>
-      <h1>Workout templates</h1>
+      <p class="uppercase tracking-wide text-xs text-text-faint mb-1">Routines</p>
+      <h1 class="text-[1.9rem] m-0">Workout templates</h1>
     </div>
-    <button class="btn btn-primary" (click)="openCreate()">+ New template</button>
+    <button appButton variant="primary" (click)="openCreate()">+ New template</button>
   </header>
 
   @if (formOpen()) {
-    <div class="card form-card">
-      <h3>{{ editingId() ? 'Edit template' : 'New template' }}</h3>
-      <div class="field">
-        <label for="tname">Name</label>
-        <input id="tname" [(ngModel)]="form.name" name="tname" required placeholder="e.g. Push day" />
+    <app-card class="block mb-7">
+      <h3 class="text-[1.05rem] mb-2">{{ editingId() ? 'Edit template' : 'New template' }}</h3>
+      <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+        <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="tname">Name</label>
+        <input id="tname" [(ngModel)]="form.name" name="tname" required placeholder="e.g. Push day"
+               class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none" />
       </div>
-      <div class="field">
-        <label for="tdesc">Description</label>
-        <input id="tdesc" [(ngModel)]="form.description" name="tdesc" placeholder="Optional" />
+      <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+        <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="tdesc">Description</label>
+        <input id="tdesc" [(ngModel)]="form.description" name="tdesc" placeholder="Optional"
+               class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none" />
       </div>
 
-      <h3 class="sub-head">Exercises</h3>
+      <h3 class="text-[1.05rem] mt-5 mb-2">Exercises</h3>
       @for (row of rows; track row; let i = $index) {
-        <div class="exercise-row">
-          <select [(ngModel)]="row.exerciseId" [name]="'ex' + i">
+        <div class="grid grid-cols-[2fr_0.7fr_0.7fr_0.7fr_auto] gap-2.5 mb-2.5 items-center max-[700px]:grid-cols-1 max-[700px]:gap-2">
+          <select [(ngModel)]="row.exerciseId" [name]="'ex' + i"
+                  class="bg-bg border border-border-light rounded-md px-2.5 py-2 text-text w-full min-w-0">
             <option value="" disabled>Select exercise</option>
             @for (ex of exercises(); track ex.id) {
               <option [value]="ex.id">{{ ex.name }}</option>
             }
           </select>
-          <input type="number" min="1" [(ngModel)]="row.targetSets" [name]="'sets' + i" placeholder="Sets" />
-          <input type="number" min="1" [(ngModel)]="row.targetReps" [name]="'reps' + i" placeholder="Reps" />
-          <input type="number" min="0" step="0.5" [(ngModel)]="row.targetWeightKg" [name]="'weight' + i" placeholder="kg" />
-          <button type="button" class="btn btn-danger small" (click)="removeRow(i)">Remove</button>
+          <div class="contents max-[700px]:grid max-[700px]:grid-cols-3 max-[700px]:gap-2">
+            <input type="number" min="1" [(ngModel)]="row.targetSets" [name]="'sets' + i" placeholder="Sets"
+                   class="bg-bg border border-border-light rounded-md px-2.5 py-2 text-text w-full min-w-0" />
+            <input type="number" min="1" [(ngModel)]="row.targetReps" [name]="'reps' + i" placeholder="Reps"
+                   class="bg-bg border border-border-light rounded-md px-2.5 py-2 text-text w-full min-w-0" />
+            <input type="number" min="0" step="0.5" [(ngModel)]="row.targetWeightKg" [name]="'weight' + i" placeholder="kg"
+                   class="bg-bg border border-border-light rounded-md px-2.5 py-2 text-text w-full min-w-0" />
+          </div>
+          <button type="button" appButton variant="danger" small (click)="removeRow(i)" class="max-[700px]:w-full">Remove</button>
         </div>
       }
-      <button type="button" class="btn btn-ghost" (click)="addRow()">+ Add exercise to template</button>
+      <button type="button" appButton variant="ghost" (click)="addRow()">+ Add exercise to template</button>
 
-      <div class="form-actions">
-        <button type="button" class="btn btn-ghost" (click)="closeForm()">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="save()">{{ editingId() ? 'Save changes' : 'Create template' }}</button>
+      <div class="flex justify-end gap-3 mt-5">
+        <button type="button" appButton variant="ghost" (click)="closeForm()">Cancel</button>
+        <button type="button" appButton variant="primary" (click)="save()">{{ editingId() ? 'Save changes' : 'Create template' }}</button>
       </div>
-    </div>
+    </app-card>
   }
 
   @if (loading()) {
-    <p class="empty-state">Loading templates…</p>
+    <p class="text-center py-12 px-4 text-text-faint">Loading templates…</p>
   } @else if (templates().length === 0) {
-    <p class="empty-state">No templates yet — build one to speed up logging.</p>
+    <p class="text-center py-12 px-4 text-text-faint">No templates yet — build one to speed up logging.</p>
   } @else {
-    <div class="grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-[1.1rem]">
       @for (t of templates(); track t.id) {
-        <div class="card template-card">
-          <div class="tc-head">
-            <h3>{{ t.name }}</h3>
-            <span class="badge">{{ t.exercises.length }} exercises</span>
+        <app-card class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-[1.05rem] m-0">{{ t.name }}</h3>
+            <app-badge>{{ t.exercises.length }} exercises</app-badge>
           </div>
-          @if (t.description) { <p>{{ t.description }}</p> }
-          <ul class="ex-list">
+          @if (t.description) { <p class="text-text-dim">{{ t.description }}</p> }
+          <ul class="list-none p-0 my-1 mb-3 flex flex-col gap-1.5">
             @for (e of t.exercises; track e.id) {
-              <li>{{ e.exerciseName }} <span class="mono dim">{{ e.targetSets }}×{{ e.targetReps }}</span></li>
+              <li class="flex justify-between text-[0.88rem] text-text-dim">{{ e.exerciseName }} <span class="font-mono text-text-faint">{{ e.targetSets }}×{{ e.targetReps }}</span></li>
             }
           </ul>
-          <div class="tc-actions">
-            <button class="btn btn-primary small" (click)="startFromTemplate(t)">Start workout</button>
-            <button class="btn btn-ghost small" (click)="openEdit(t)">Edit</button>
-            <button class="btn btn-danger small" (click)="remove(t)">Delete</button>
+          <div class="flex gap-2 flex-wrap mt-auto">
+            <button appButton variant="primary" small (click)="startFromTemplate(t)">Start workout</button>
+            <button appButton variant="ghost" small (click)="openEdit(t)">Edit</button>
+            <button appButton variant="danger" small (click)="remove(t)">Delete</button>
           </div>
-        </div>
+        </app-card>
       }
     </div>
   }

@@ -6,13 +6,13 @@ import { WorkoutService } from '../../core/services/workout.service';
 import { ExerciseService } from '../../core/services/exercise.service';
 import { TemplateService } from '../../core/services/template.service';
 import { ExerciseResponse, WorkoutSessionResponse, WorkoutSetRequest, WorkoutSetResponse } from '../../core/models/models';
+import { ButtonComponent, CardComponent, BadgeComponent, CheckboxComponent, ConfirmService } from '../../shared/ui';
 
 @Component({
   selector: 'app-workout-session',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, ButtonComponent, CardComponent, BadgeComponent, CheckboxComponent],
   templateUrl: './workout-session.component.html',
-  styleUrl: './workout-session.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkoutSessionComponent implements OnInit {
@@ -21,6 +21,7 @@ export class WorkoutSessionComponent implements OnInit {
   private workoutService = inject(WorkoutService);
   private exerciseService = inject(ExerciseService);
   private templateService = inject(TemplateService);
+  private confirmService = inject(ConfirmService);
 
   session = signal<WorkoutSessionResponse | null>(null);
   exercises = signal<ExerciseResponse[]>([]);
@@ -116,6 +117,11 @@ export class WorkoutSessionComponent implements OnInit {
     this.workoutService.updateSet(s.id, set.id, req).subscribe();
   }
 
+  onSetCompletedChange(set: WorkoutSetResponse, completed: boolean): void {
+    set.completed = completed;
+    this.saveSet(set);
+  }
+
   removeSet(setId: string): void {
     const s = this.session();
     if (!s) return;
@@ -131,7 +137,10 @@ export class WorkoutSessionComponent implements OnInit {
   removeSession(): void {
     const s = this.session();
     if (!s) return;
-    if (!confirm('Delete this workout session? This cannot be undone.')) return;
-    this.workoutService.delete(s.id).subscribe(() => this.router.navigate(['/workouts']));
+    this.confirmService
+      .confirm({ title: 'Delete workout', message: 'Delete this workout session? This cannot be undone.', confirmLabel: 'Delete', danger: true })
+      .subscribe((confirmed) => {
+        if (confirmed) this.workoutService.delete(s.id).subscribe(() => this.router.navigate(['/workouts']));
+      });
   }
 }

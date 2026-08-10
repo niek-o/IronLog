@@ -1,6 +1,6 @@
 @if (auth.isAuthenticated()) {
   <app-navbar></app-navbar>
 }
-<main [class.with-nav]="auth.isAuthenticated()">
+<main [class]="auth.isAuthenticated() ? 'min-h-[calc(100vh-60px)]' : 'min-h-screen'">
   <router-outlet></router-outlet>
 </main>

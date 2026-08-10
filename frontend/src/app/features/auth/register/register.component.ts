@@ -1,14 +1,15 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { NgxAuroraComponent } from '@omnedia/ngx-aurora';
 import { AuthService } from '../../../core/services/auth.service';
+import { ButtonComponent, CardComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, ButtonComponent, CardComponent, NgxAuroraComponent],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {

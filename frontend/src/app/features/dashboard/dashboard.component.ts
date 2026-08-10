@@ -1,19 +1,19 @@
 import { Component, ElementRef, OnDestroy, OnInit, inject, signal, viewChild, effect, ChangeDetectionStrategy } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
+import { NgxNumberTickerComponent } from '@omnedia/ngx-number-ticker';
 import { AuthService } from '../../core/services/auth.service';
 import { StatsService } from '../../core/services/stats.service';
 import { DashboardSummary } from '../../core/models/models';
+import { ButtonComponent, CardComponent } from '../../shared/ui';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, ButtonComponent, CardComponent, NgxNumberTickerComponent],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -24,6 +24,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private chart?: Chart;
 
   summary = signal<DashboardSummary | null>(null);
+
+  round = Math.round;
 
   constructor() {
     effect(() => {

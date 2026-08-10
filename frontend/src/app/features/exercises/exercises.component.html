@@ -1,73 +1,86 @@
-<div class="page">
-  <header class="page-head">
+<div class="max-w-[1000px] mx-auto px-7 pt-8 pb-16">
+  <header class="flex items-end justify-between mb-5 flex-wrap gap-4">
     <div>
-      <p class="eyebrow">Library</p>
-      <h1>Exercises</h1>
+      <p class="uppercase tracking-wide text-xs text-text-faint mb-1">Library</p>
+      <h1 class="text-[1.9rem] m-0">Exercises</h1>
     </div>
-    <button class="btn btn-primary" (click)="openCreate()">+ Add custom exercise</button>
+    <button appButton variant="primary" (click)="openCreate()">+ Add custom exercise</button>
   </header>
 
-  <div class="filters">
-    <button class="chip" [class.active]="filterCategory() === null" (click)="setFilter(null)">All</button>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <button
+      class="appearance-none px-[0.9rem] py-[0.4rem] rounded-full border text-[0.82rem] font-semibold"
+      [class]="filterCategory() === null ? 'bg-accent text-accent-ink border-accent' : 'bg-surface text-text-dim border-border-light'"
+      (click)="setFilter(null)"
+    >All</button>
     @for (cat of categories; track cat) {
-      <button class="chip" [class.active]="filterCategory() === cat" (click)="setFilter(cat)">{{ cat }}</button>
+      <button
+        class="appearance-none px-[0.9rem] py-[0.4rem] rounded-full border text-[0.82rem] font-semibold"
+        [class]="filterCategory() === cat ? 'bg-accent text-accent-ink border-accent' : 'bg-surface text-text-dim border-border-light'"
+        (click)="setFilter(cat)"
+      >{{ cat }}</button>
     }
   </div>
 
   @if (formOpen()) {
-    <div class="card form-card">
-      <h3>{{ editingId() ? 'Edit exercise' : 'New custom exercise' }}</h3>
+    <app-card class="block mb-6">
+      <h3 class="text-[1.05rem] mb-4">{{ editingId() ? 'Edit exercise' : 'New custom exercise' }}</h3>
       <form (ngSubmit)="save()">
-        <div class="row">
-          <div class="field">
-            <label for="name">Name</label>
-            <input id="name" name="name" [(ngModel)]="form.name" required />
+        <div class="grid grid-cols-2 gap-4 max-[700px]:grid-cols-1">
+          <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+            <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="name">Name</label>
+            <input id="name" name="name" [(ngModel)]="form.name" required
+                   class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none" />
           </div>
-          <div class="field">
-            <label for="category">Category</label>
-            <select id="category" name="category" [(ngModel)]="form.category" required>
+          <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+            <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="category">Category</label>
+            <select id="category" name="category" [(ngModel)]="form.category" required
+                    class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none">
               @for (cat of categories; track cat) {
                 <option [value]="cat">{{ cat }}</option>
               }
             </select>
           </div>
         </div>
-        <div class="row">
-          <div class="field">
-            <label for="equipment">Equipment</label>
-            <input id="equipment" name="equipment" [(ngModel)]="form.equipment" placeholder="e.g. Dumbbell" />
+        <div class="grid grid-cols-2 gap-4 max-[700px]:grid-cols-1">
+          <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+            <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="equipment">Equipment</label>
+            <input id="equipment" name="equipment" [(ngModel)]="form.equipment" placeholder="e.g. Dumbbell"
+                   class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none" />
           </div>
-          <div class="field">
-            <label for="notes">Notes</label>
-            <input id="notes" name="notes" [(ngModel)]="form.notes" placeholder="Optional" />
+          <div class="flex flex-col gap-1.5 mb-4 min-w-0">
+            <label class="text-xs uppercase tracking-wide text-text-faint font-semibold" for="notes">Notes</label>
+            <input id="notes" name="notes" [(ngModel)]="form.notes" placeholder="Optional"
+                   class="bg-bg border border-border-light rounded-md px-3 py-2.5 text-text w-full min-w-0 focus:border-accent focus:outline-none" />
           </div>
         </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-ghost" (click)="closeForm()">Cancel</button>
-          <button type="submit" class="btn btn-primary">{{ editingId() ? 'Save changes' : 'Add exercise' }}</button>
+        <div class="flex justify-end gap-3">
+          <button type="button" appButton variant="ghost" (click)="closeForm()">Cancel</button>
+          <button type="submit" appButton variant="primary">{{ editingId() ? 'Save changes' : 'Add exercise' }}</button>
         </div>
       </form>
-    </div>
+    </app-card>
   }
 
   @if (loading()) {
-    <p class="empty-state">Loading exercise library…</p>
+    <p class="text-center py-12 px-4 text-text-faint">Loading exercise library…</p>
   } @else if (filtered().length === 0) {
-    <p class="empty-state">No exercises in this category yet.</p>
+    <p class="text-center py-12 px-4 text-text-faint">No exercises in this category yet.</p>
   } @else {
-    <div class="table">
-      <div class="table-head">
+    <div class="border border-border rounded-2xl overflow-hidden">
+      <div class="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 px-5 py-3.5 items-center bg-surface-raised text-[0.75rem] uppercase tracking-wide text-text-faint max-[700px]:hidden">
         <span>Name</span><span>Category</span><span>Equipment</span><span></span>
       </div>
       @for (ex of filtered(); track ex.id) {
-        <div class="table-row">
-          <span class="ex-name">{{ ex.name }} @if (ex.isCustom) { <span class="badge badge-accent">custom</span> }</span>
+        <div class="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 px-5 py-3.5 items-center bg-surface border-t border-border
+                    max-[700px]:grid-cols-1 max-[700px]:gap-1">
+          <span class="flex items-center gap-2">{{ ex.name }} @if (ex.isCustom) { <app-badge variant="accent">custom</app-badge> }</span>
           <span>{{ ex.category }}</span>
           <span>{{ ex.equipment || '—' }}</span>
-          <span class="row-actions">
+          <span class="flex gap-2 justify-end max-[700px]:justify-start">
             @if (ex.isCustom) {
-              <button class="btn btn-ghost small" (click)="openEdit(ex)">Edit</button>
-              <button class="btn btn-danger small" (click)="remove(ex)">Delete</button>
+              <button appButton variant="ghost" small (click)="openEdit(ex)">Edit</button>
+              <button appButton variant="danger" small (click)="remove(ex)">Delete</button>
             }
           </span>
         </div>

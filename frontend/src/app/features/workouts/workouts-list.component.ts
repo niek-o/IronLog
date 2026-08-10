@@ -4,13 +4,13 @@ import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { WorkoutService } from '../../core/services/workout.service';
 import { WorkoutSessionResponse } from '../../core/models/models';
+import { ButtonComponent, BadgeComponent } from '../../shared/ui';
 
 @Component({
   selector: 'app-workouts-list',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, ButtonComponent, BadgeComponent],
   templateUrl: './workouts-list.component.html',
-  styleUrl: './workouts-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkoutsListComponent implements OnInit {
