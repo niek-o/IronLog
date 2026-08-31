@@ -107,19 +107,25 @@ export class TemplatesComponent implements OnInit {
   }
 
   startFromTemplate(t: TemplateResponse): void {
-    const sets = t.exercises.flatMap((e) =>
-      Array.from({ length: e.targetSets }, (_, i) => ({
-        exerciseId: e.exerciseId,
-        setNumber: i + 1,
-        reps: e.targetReps,
-        weightKg: e.targetWeightKg ?? 0,
-        rpe: null,
-        completed: false,
-      }))
-    );
+    this.workoutService.lastForTemplate(t.id).subscribe((last) => {
+      const sets = t.exercises.flatMap((e) =>
+        Array.from({ length: e.targetSets }, (_, i) => {
+          const setNumber = i + 1;
+          const prevSet = last?.sets.find((s) => s.exerciseId === e.exerciseId && s.setNumber === setNumber);
+          return {
+            exerciseId: e.exerciseId,
+            setNumber,
+            reps: prevSet?.reps ?? e.targetReps,
+            weightKg: prevSet?.weightKg ?? e.targetWeightKg ?? 0,
+            rpe: null,
+            completed: false,
+          };
+        })
+      );
 
-    this.workoutService
-      .start({ name: t.name, templateId: t.id, notes: null, sets })
-      .subscribe((session) => this.router.navigate(['/workouts', session.id]));
+      this.workoutService
+        .start({ name: t.name, templateId: t.id, notes: null, sets })
+        .subscribe((session) => this.router.navigate(['/workouts', session.id]));
+    });
   }
 }

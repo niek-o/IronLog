@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 import {
   WorkoutSessionRequest,
   WorkoutSessionResponse,
@@ -24,6 +24,12 @@ export class WorkoutService {
 
   start(req: WorkoutSessionRequest): Observable<WorkoutSessionResponse> {
     return this.http.post<WorkoutSessionResponse>(`${API_BASE}/workouts`, req);
+  }
+
+  lastForTemplate(templateId: string): Observable<WorkoutSessionResponse | null> {
+    return this.http
+      .get<WorkoutSessionResponse>(`${API_BASE}/workouts/last-for-template/${templateId}`)
+      .pipe(catchError(() => of(null)));
   }
 
   update(id: string, req: WorkoutSessionUpdateRequest): Observable<WorkoutSessionResponse> {
