@@ -26,6 +26,19 @@ public static class WorkoutEndpoints
             return Results.Ok(sessions.Select(ToResponse));
         });
 
+        group.MapGet("/last-for-template/{templateId:guid}", async (Guid templateId, AppDbContext db, CurrentUserService currentUser) =>
+        {
+            var userId = currentUser.RequireUserId();
+            var session = await db.WorkoutSessions
+                .Where(s => s.UserId == userId && s.TemplateId == templateId && s.CompletedAt != null)
+                .Include(s => s.Sets).ThenInclude(set => set.Exercise)
+                .Include(s => s.Template)
+                .OrderByDescending(s => s.CompletedAt)
+                .FirstOrDefaultAsync();
+
+            return session is null ? Results.NotFound() : Results.Ok(ToResponse(session));
+        });
+
         group.MapGet("/{id:guid}", async (Guid id, AppDbContext db, CurrentUserService currentUser) =>
         {
             var userId = currentUser.RequireUserId();
